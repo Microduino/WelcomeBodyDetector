@@ -1,4 +1,4 @@
-#include "arduino.h"
+#include <arduino.h>
 
 boolean key[NUM_DIGITAL_PINS];			//°´¼ü
 boolean key_cache[NUM_DIGITAL_PINS];		//¼ì²â°´¼üËÉ¿ª»º´æ
