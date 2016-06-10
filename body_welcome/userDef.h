@@ -1,11 +1,7 @@
 #include <Arduino.h>
 
-//Core和CoreUSB默认使用软串口
-#define AUDIO_SoftSerial
-#define MUSICVOL 25  //初始音量0~30
-
-//Core+默认使用Serial1
-//JQ6500 Audio(&Serial1);
+#define Audio_SoftSerial  //Core和CoreUSB默认使用软串口
+#define MUSICVOL 30  //初始音量0~30
 
 #define PIN A0 //彩灯引脚
 
