@@ -1,25 +1,32 @@
 #include "userDef.h"
-#include <JQ6500.h>
+#include <Microduino_Audio.h>
 
-#ifdef Audio_SoftSerial
-#include<SoftwareSerial.h>
-SoftwareSerial mySerial(2, 3); // RX, TX
-JQ6500 Audio(&mySerial);     //音频控制类实例,使用软串口（2，3）
-#else
-JQ6500 Audio(&Serial1);
+
+//Core UART Port: [SoftSerial] [D2,D3]
+#if defined (__AVR_ATmega168__) || defined (__AVR_ATmega328__) || defined (__AVR_ATmega328P__) || defined(__AVR_ATmega32U4__)
+#include <SoftwareSerial.h>
+SoftwareSerial mySerial(2, 3); /* RX:D2, TX:D3 */
+#define AudioSerial mySerial
 #endif
 
-#include <Adafruit_NeoPixel.h>
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(1, PIN, NEO_GRB + NEO_KHZ800);//设置彩灯个数，引脚
+//Core+ UART Port: [Serial1] [D2,D3]
+#if defined(__AVR_ATmega1284P__) || defined (__AVR_ATmega644P__) || defined(__AVR_ATmega128RFA1__)
+#define AudioSerial Serial1
+#endif
+
+Audio audio(&AudioSerial);
+
+#include <Microduino_ColorLED.h>
+ColorLED strip = ColorLED(1, PIN);//设置彩灯个数，引脚
 
 void setup() {
   pinMode(BODY_PIN1, INPUT);
   pinMode(BODY_PIN2, INPUT);
   // initialize serial:
   Serial.begin(9600);
-  Audio.init(DEVICE_FLASH, MODE_ONE_STOP, MUSICVOL);
+  audio.begin(DEVICE_FLASH, MODE_ONE_STOP, MUSICVOL);
   delay(200);
-  Audio.volumn(MUSICVOL);
+  audio.setVolume(MUSICVOL);
 
   strip.begin();	//初始化LED
   strip.setPixelColor(0, strip.Color(255, 255, 255));
@@ -30,7 +37,7 @@ void loop() {
   if (getPIR(BODY_PIN1, BODY_PIN2)) { //COMING IN
     strip.setPixelColor(0, strip.Color(0, 255, 0));
     strip.show();
-    Audio.choose(1);
+    audio.chooseMusic(1);
     Serial.println("COMING IN");
     delay(2500);
     strip.setPixelColor(0, strip.Color(255, 255, 255));
@@ -40,7 +47,7 @@ void loop() {
   if (getPIR(BODY_PIN2, BODY_PIN1)) { //GOING OUT
     strip.setPixelColor(0, strip.Color(0, 0, 255));
     strip.show();
-    Audio.choose(2);
+    audio.chooseMusic(2);
     Serial.println("GOING OUT");
     delay(2500);
     strip.setPixelColor(0, strip.Color(255, 255, 255));
